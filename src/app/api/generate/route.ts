@@ -359,7 +359,17 @@ async function generateWithGemini(
 
   // Fallback: use gemini-2.0-flash for SVG code generation (like Claude)
   console.log("[SIMple] Gemini image models unavailable, falling back to SVG generation");
-  return generateGeminiSVG(apiKey, fullPrompt, style);
+  try {
+    return await generateGeminiSVG(apiKey, fullPrompt, style);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "";
+    if (msg.includes("quota") || msg.includes("Quota")) {
+      throw new Error(
+        "Gemini API 무료 할당량이 소진되었습니다. Google AI Studio에서 유료 플랜으로 업그레이드하거나, Claude 또는 OpenAI 모델을 사용해 주세요."
+      );
+    }
+    throw err;
+  }
 }
 
 async function generateGeminiSVG(
