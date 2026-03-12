@@ -104,6 +104,7 @@ export interface GenerationRequest {
   style?: string;
   outputFormat: OutputFormat;
   brandGuidelines?: BrandGuideline[];
+  apiKey?: string;
   width?: number;
   height?: number;
 }

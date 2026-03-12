@@ -11,6 +11,7 @@ import { AIModel, BrandProfile, GeneratedAsset, GenerationStatus, OutputFormat }
 import { loadProfile } from "@/lib/brand-store";
 import { addToHistory, loadHistory, clearHistory } from "@/lib/asset-store";
 import { addAsset, loadAssets } from "@/lib/asset-store";
+import { getRealApiKey } from "@/lib/settings-store";
 
 export default function CreatePage() {
   const [selectedModel, setSelectedModel] = useState<AIModel>("claude");
@@ -37,6 +38,9 @@ export default function CreatePage() {
     setError(undefined);
 
     try {
+      // Get real API key from localStorage
+      const apiKey = getRealApiKey(selectedModel);
+
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,6 +50,7 @@ export default function CreatePage() {
           style,
           outputFormat: format,
           brandGuidelines: activeGuidelines,
+          apiKey: apiKey || undefined,
         }),
       });
 

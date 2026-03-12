@@ -13,6 +13,7 @@ import {
   disconnectFigma,
   setFigmaConnection,
   getConnectedCount,
+  getRealApiKey,
   AI_PROVIDER_META,
   buildOAuthRedirectUrl,
 } from "@/lib/settings-store";
@@ -73,9 +74,26 @@ export default function SettingsPage() {
 
   const handleTest = useCallback(
     async (provider: AIModel) => {
-      // In production: call /api/settings/test with the provider
-      // For now: just show a toast-style feedback
-      alert(`${AI_PROVIDER_META[provider].name} connection test: OK (demo)`);
+      const apiKey = getRealApiKey(provider);
+      if (!apiKey) {
+        alert(`${AI_PROVIDER_META[provider].name}: API key not found`);
+        return;
+      }
+      try {
+        const res = await fetch("/api/test-key", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ provider, apiKey }),
+        });
+        const data = await res.json();
+        if (data.valid) {
+          alert(`${AI_PROVIDER_META[provider].name}: Connection OK!`);
+        } else {
+          alert(`${AI_PROVIDER_META[provider].name}: ${data.error || "Test failed"}`);
+        }
+      } catch {
+        alert(`${AI_PROVIDER_META[provider].name}: Network error`);
+      }
     },
     []
   );
@@ -89,13 +107,13 @@ export default function SettingsPage() {
       const oauthUrl = buildOAuthRedirectUrl(provider);
 
       if (!oauthUrl) {
-        // Demo mode: simulate OAuth connection
-        if (!settings) return;
-        const updated = setProviderOAuth(settings, provider, {
-          userName: "Demo User",
-          email: `demo@${meta.oauthProvider}.com`,
-        });
-        setSettings(updated);
+        // OAuth not configured - guide user to use API key instead
+        const providerName = provider === "gemini" ? "Google AI Studio" : "OpenAI";
+        alert(
+          `OAuth is not configured for ${providerName}.\n\n` +
+          `To use this service, switch to the "API Key" tab and enter your API key.\n\n` +
+          `Get your key from:\n${meta.docsUrl}`
+        );
         return;
       }
 
