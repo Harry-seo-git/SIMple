@@ -263,9 +263,112 @@ async function generateWithGemini(
   style?: string,
   outputFormat?: OutputFormat
 ): Promise<GeneratedAsset> {
-  // Use Gemini 2.5 Flash Image for image generation
+  // Try image generation models in order of preference
+  // gemini-2.0-flash-image-generation (free tier) → gemini-2.5-flash-image (paid) → SVG fallback
+  const imageModels = [
+    "gemini-2.0-flash-image-generation",
+    "gemini-2.5-flash-image",
+  ];
+
+  for (const model of imageModels) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `Generate a high-quality graphic image based on this description: ${fullPrompt}. Make it visually stunning and professional. IMPORTANT: The background must be completely transparent (no background fill). Output size should be 1024x1024 pixels.`,
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              responseModalities: ["TEXT", "IMAGE"],
+            },
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errObj = errorData as { error?: { message?: string } };
+        const errMsg = errObj?.error?.message || "";
+        // If model not found or quota exceeded, try next model
+        if (res.status === 404 || errMsg.includes("not found") || errMsg.includes("quota") || errMsg.includes("Quota")) {
+          console.log(`[SIMple] Gemini ${model} unavailable, trying next...`);
+          continue;
+        }
+        throw new Error(errMsg || `Gemini API error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const candidates = data.candidates;
+      if (!candidates || candidates.length === 0) continue;
+
+      const parts = candidates[0].content?.parts || [];
+
+      // Look for inline image data
+      const imagePart = parts.find((p: { inlineData?: { mimeType: string } }) => p.inlineData?.mimeType?.startsWith("image/"));
+      if (imagePart?.inlineData) {
+        const { mimeType, data: b64Data } = imagePart.inlineData;
+        return {
+          id: crypto.randomUUID(),
+          prompt: fullPrompt,
+          model: "gemini",
+          format: outputFormat === "svg" ? "png" : (outputFormat || "png"),
+          url: `data:${mimeType};base64,${b64Data}`,
+          createdAt: new Date().toISOString(),
+          tags: style ? [style] : [],
+          width: 1024,
+          height: 1024,
+        };
+      }
+
+      // Check for SVG in text response
+      const textPart = parts.find((p: { text?: string }) => p.text);
+      if (textPart?.text) {
+        const svgMatch = textPart.text.match(/<svg[\s\S]*?<\/svg>/i);
+        if (svgMatch) {
+          return {
+            id: crypto.randomUUID(),
+            prompt: fullPrompt,
+            model: "gemini",
+            format: "svg",
+            url: `data:image/svg+xml,${encodeURIComponent(svgMatch[0])}`,
+            svgCode: svgMatch[0],
+            createdAt: new Date().toISOString(),
+            tags: style ? [style] : [],
+            width: 1024,
+            height: 1024,
+          };
+        }
+      }
+    } catch (err) {
+      // If it's a throw from above (not model-not-found), re-throw
+      if (err instanceof Error && !err.message.includes("not found") && !err.message.includes("quota")) {
+        throw err;
+      }
+      console.log(`[SIMple] Gemini ${model} failed, trying next...`);
+    }
+  }
+
+  // Fallback: use gemini-2.0-flash for SVG code generation (like Claude)
+  console.log("[SIMple] Gemini image models unavailable, falling back to SVG generation");
+  return generateGeminiSVG(apiKey, fullPrompt, style);
+}
+
+async function generateGeminiSVG(
+  apiKey: string,
+  fullPrompt: string,
+  style?: string
+): Promise<GeneratedAsset> {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -274,14 +377,20 @@ async function generateWithGemini(
           {
             parts: [
               {
-                text: `Generate a high-quality graphic image based on this description: ${fullPrompt}. Make it visually stunning and professional. IMPORTANT: The background must be completely transparent (no background fill). Output size should be 1024x1024 pixels.`,
+                text: `You are an expert SVG graphic designer. Generate a single, clean, production-quality SVG graphic based on this description: ${fullPrompt}
+
+Rules:
+- Output ONLY the raw SVG code, no markdown, no explanation
+- Use viewBox="0 0 1024 1024" with width="1024" height="1024"
+- The background MUST be fully transparent — do NOT add any background rectangle or fill
+- Use modern design: gradients, rounded corners, clean shapes
+- Use the xmlns="http://www.w3.org/2000/svg" attribute
+- Make the design visually appealing and professional
+- If brand guidelines are provided, follow them strictly`,
               },
             ],
           },
         ],
-        generationConfig: {
-          responseModalities: ["TEXT", "IMAGE"],
-        },
       }),
     }
   );
@@ -293,54 +402,25 @@ async function generateWithGemini(
   }
 
   const data = await res.json();
-  const candidates = data.candidates;
-  if (!candidates || candidates.length === 0) {
-    throw new Error("Gemini returned no results");
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const svgMatch = text.match(/<svg[\s\S]*?<\/svg>/i);
+
+  if (!svgMatch) {
+    throw new Error("Gemini did not return valid SVG. Try a different prompt.");
   }
 
-  const parts = candidates[0].content?.parts || [];
-
-  // Look for inline image data
-  const imagePart = parts.find((p: { inlineData?: { mimeType: string } }) => p.inlineData?.mimeType?.startsWith("image/"));
-  if (imagePart?.inlineData) {
-    const { mimeType, data: b64Data } = imagePart.inlineData;
-    const imageUrl = `data:${mimeType};base64,${b64Data}`;
-
-    return {
-      id: crypto.randomUUID(),
-      prompt: fullPrompt,
-      model: "gemini",
-      format: outputFormat === "svg" ? "png" : (outputFormat || "png"),
-      url: imageUrl,
-      createdAt: new Date().toISOString(),
-      tags: style ? [style] : [],
-      width: 1024,
-      height: 1024,
-    };
-  }
-
-  // If no image, check if Gemini returned text (maybe SVG code)
-  const textPart = parts.find((p: { text?: string }) => p.text);
-  if (textPart?.text) {
-    const svgMatch = textPart.text.match(/<svg[\s\S]*?<\/svg>/i);
-    if (svgMatch) {
-      const svgCode = svgMatch[0];
-      return {
-        id: crypto.randomUUID(),
-        prompt: fullPrompt,
-        model: "gemini",
-        format: "svg",
-        url: `data:image/svg+xml,${encodeURIComponent(svgCode)}`,
-        svgCode,
-        createdAt: new Date().toISOString(),
-        tags: style ? [style] : [],
-        width: 1024,
-        height: 1024,
-      };
-    }
-  }
-
-  throw new Error("Gemini did not return an image. Try a different prompt or check your API key permissions.");
+  return {
+    id: crypto.randomUUID(),
+    prompt: fullPrompt,
+    model: "gemini",
+    format: "svg",
+    url: `data:image/svg+xml,${encodeURIComponent(svgMatch[0])}`,
+    svgCode: svgMatch[0],
+    createdAt: new Date().toISOString(),
+    tags: style ? [style] : [],
+    width: 1024,
+    height: 1024,
+  };
 }
 
 // ─── Demo mode (no API key) ──────────────────────────────────────────────────
