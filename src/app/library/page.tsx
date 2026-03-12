@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import AssetGrid from "@/components/library/AssetGrid";
@@ -12,14 +12,12 @@ import { loadAssets, removeAsset } from "@/lib/asset-store";
 type FilterModel = AIModel | "all";
 
 export default function LibraryPage() {
-  const [assets, setAssets] = useState<GeneratedAsset[]>([]);
+  const [assets, setAssets] = useState<GeneratedAsset[]>(() => {
+    if (typeof window === "undefined") return [];
+    return loadAssets();
+  });
   const [filter, setFilter] = useState<FilterModel>("all");
   const [search, setSearch] = useState("");
-
-  // Load from persistent storage
-  useEffect(() => {
-    setAssets(loadAssets());
-  }, []);
 
   const handleDelete = useCallback((assetId: string) => {
     const updated = removeAsset(assetId);

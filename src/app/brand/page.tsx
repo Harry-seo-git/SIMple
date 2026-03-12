@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import GuidelineCard from "@/components/brand/GuidelineCard";
 import GuidelineForm from "@/components/brand/GuidelineForm";
@@ -20,15 +20,14 @@ import { BrandGuideline, BrandProfile, GuidelineCategory } from "@/types";
 type FilterCat = GuidelineCategory | "all";
 
 export default function BrandPage() {
-  const [profile, setProfile] = useState<BrandProfile | null>(null);
+  const [profile, setProfile] = useState<BrandProfile | null>(() => {
+    if (typeof window === "undefined") return null;
+    return loadProfile();
+  });
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<BrandGuideline | null>(null);
   const [filter, setFilter] = useState<FilterCat>("all");
   const [showPreview, setShowPreview] = useState(false);
-
-  useEffect(() => {
-    setProfile(loadProfile());
-  }, []);
 
   const handleAdd = useCallback(
     (data: { category: GuidelineCategory; title: string; directive: string }) => {

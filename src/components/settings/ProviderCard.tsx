@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AIModel, AIProviderConnection, AuthMethod } from "@/types";
-import { AI_PROVIDER_META, maskApiKey, buildOAuthRedirectUrl } from "@/lib/settings-store";
+import { AI_PROVIDER_META } from "@/lib/settings-store";
 import Button from "@/components/ui/Button";
 
 interface ProviderCardProps {

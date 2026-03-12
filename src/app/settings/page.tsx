@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import ProviderCard from "@/components/settings/ProviderCard";
 import FigmaCard from "@/components/settings/FigmaCard";
@@ -19,47 +19,41 @@ import {
 import { AIModel, AppSettings } from "@/types";
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [settings, setSettings] = useState<AppSettings | null>(() => {
+    if (typeof window === "undefined") return null;
+    let s = loadSettings();
 
-  useEffect(() => {
-    setSettings(loadSettings());
-
-    // Check for Figma OAuth callback params
+    // Process OAuth callback params from URL
     const params = new URLSearchParams(window.location.search);
     const figmaSuccess = params.get("figma");
     if (figmaSuccess === "connected") {
-      const current = loadSettings();
-      const updated = setFigmaConnection(current, {
+      s = setFigmaConnection(s, {
         status: "connected",
         userName: params.get("name") || "Figma User",
         lastConnected: new Date().toISOString(),
       });
-      setSettings(updated);
-      // Clean URL
-      window.history.replaceState({}, "", "/settings");
     }
 
-    // Check for AI provider OAuth callback params
     const oauthStatus = params.get("oauth");
     const oauthProvider = params.get("provider") as AIModel | null;
     if (oauthStatus === "connected" && oauthProvider) {
-      const current = loadSettings();
-      const updated = setProviderOAuth(current, oauthProvider, {
+      s = setProviderOAuth(s, oauthProvider, {
         userName: params.get("name") || undefined,
         email: params.get("email") || undefined,
       });
-      setSettings(updated);
-      // Clean URL
-      window.history.replaceState({}, "", "/settings");
     }
 
     if (oauthStatus === "error" && oauthProvider) {
-      const message = params.get("message") || "unknown_error";
-      console.error(`[OAuth] ${oauthProvider} connection failed:`, message);
-      // Clean URL
+      console.error(`[OAuth] ${oauthProvider} connection failed:`, params.get("message"));
+    }
+
+    // Clean URL if any callback params were present
+    if (figmaSuccess || oauthStatus) {
       window.history.replaceState({}, "", "/settings");
     }
-  }, []);
+
+    return s;
+  });
 
   const handleConnect = useCallback(
     (provider: AIModel, apiKey: string) => {

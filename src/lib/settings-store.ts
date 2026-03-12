@@ -1,4 +1,4 @@
-import { AIModel, AppSettings, AIProviderConnection, FigmaConnection, ConnectionStatus, AuthMethod } from "@/types";
+import { AIModel, AppSettings, FigmaConnection, ConnectionStatus, AuthMethod } from "@/types";
 
 const STORAGE_KEY = "simple-settings";
 

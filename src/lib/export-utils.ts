@@ -109,7 +109,7 @@ export async function downloadPDF(asset: GeneratedAsset): Promise<void> {
 
       // Build a minimal PDF
       const pdfContent = buildSimplePDF(imgDataUrl, width, height);
-      const blob = new Blob([pdfContent], { type: "application/pdf" });
+      const blob = new Blob([pdfContent.buffer as ArrayBuffer], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       triggerDownload(url, `${sanitizeFilename(asset.prompt)}.pdf`);
       URL.revokeObjectURL(url);
@@ -191,10 +191,7 @@ function buildSimplePDF(imgDataUrl: string, width: number, height: number): Uint
   const obj5Footer = `\nendstream\nendobj\n`;
 
   // Calculate offsets
-  const parts: (string | Uint8Array)[] = [header, obj1, obj2, obj3, obj4, obj5Header, imgBytes, obj5Footer];
-
   // For simplicity, concat everything and produce xref
-  let totalStr = header + obj1 + obj2 + obj3 + obj4;
   const offsets: number[] = [];
   let pos = 0;
 

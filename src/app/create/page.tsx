@@ -7,9 +7,8 @@ import ModelSelector from "@/components/create/ModelSelector";
 import PromptInput from "@/components/create/PromptInput";
 import GenerationPreview from "@/components/create/GenerationPreview";
 import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
 import { AIModel, BrandProfile, GeneratedAsset, GenerationStatus, OutputFormat } from "@/types";
-import { loadProfile, buildBrandDirective } from "@/lib/brand-store";
+import { loadProfile } from "@/lib/brand-store";
 import { addToHistory, loadHistory, clearHistory } from "@/lib/asset-store";
 import { addAsset, loadAssets } from "@/lib/asset-store";
 
