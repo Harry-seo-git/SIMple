@@ -263,9 +263,9 @@ async function generateWithGemini(
   style?: string,
   outputFormat?: OutputFormat
 ): Promise<GeneratedAsset> {
-  // Use Gemini 2.0 Flash with image generation
+  // Use Gemini 2.5 Flash Image for image generation
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
