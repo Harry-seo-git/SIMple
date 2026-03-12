@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #111111;
+  --sidebar-bg: #111111;
+  --sidebar-fg: #ffffff;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: #eef2ff;
+  --muted: #6b7280;
+  --muted-bg: #f3f4f6;
+  --border: #e5e7eb;
+  --card-bg: #ffffff;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --radius: 12px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-muted: var(--muted);
+  --color-muted-bg: var(--muted-bg);
+  --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-fg: var(--sidebar-fg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #09090b;
+    --foreground: #fafafa;
+    --sidebar-bg: #0a0a0a;
+    --sidebar-fg: #fafafa;
+    --accent: #818cf8;
+    --accent-hover: #6366f1;
+    --accent-light: #1e1b4b;
+    --muted: #9ca3af;
+    --muted-bg: #1f2937;
+    --border: #27272a;
+    --card-bg: #18181b;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Generation pulse animation */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(99, 102, 241, 0.2); }
+}
+.generating-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Model card selection */
+.model-card {
+  transition: all 0.2s ease;
+}
+.model-card:hover {
+  transform: translateY(-2px);
+}
+.model-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
 }

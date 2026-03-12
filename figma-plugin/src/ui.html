@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIMple</title>
+  <style>
+    :root {
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --bg: var(--figma-color-bg, #ffffff);
+      --fg: var(--figma-color-text, #1a1a2e);
+      --muted: var(--figma-color-text-secondary, #8e8ea0);
+      --border: var(--figma-color-border, #e5e5e5);
+      --card-bg: var(--figma-color-bg-secondary, #f7f7f8);
+      --success: #22c55e;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Inter, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .header h1 {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .header .subtitle {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover { color: var(--fg); }
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .content {
+      height: calc(100vh - 110px);
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .server-input {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .server-input input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      font-size: 11px;
+      outline: none;
+    }
+
+    .server-input input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { background: var(--border); }
+
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .asset-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .asset-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+    }
+
+    .asset-card .preview {
+      aspect-ratio: 1;
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .asset-card .preview svg {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .asset-card .info {
+      padding: 8px;
+    }
+
+    .asset-card .info p {
+      font-size: 10px;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .asset-card .info .model {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--card-bg);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .empty-state .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .empty-state p {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 16px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .status-dot.connected { background: var(--success); }
+    .status-dot.disconnected { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">S</div>
+    <div>
+      <h1>SIMple</h1>
+      <div class="subtitle">AI Graphic Creator</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="browse" onclick="switchTab('browse')">Browse</button>
+    <button class="tab" data-tab="insert" onclick="switchTab('insert')">Insert</button>
+    <button class="tab" data-tab="settings" onclick="switchTab('settings')">Settings</button>
+  </div>
+
+  <!-- Browse Tab -->
+  <div class="content" id="tab-browse">
+    <div class="server-input">
+      <input type="text" id="server-url" placeholder="SIMple server URL" value="http://localhost:3000" />
+      <button class="btn btn-primary" onclick="fetchAssets()">Fetch</button>
+    </div>
+    <div id="assets-container">
+      <div class="empty-state">
+        <div class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="9" cy="9" r="2" />
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+          </svg>
+        </div>
+        <h3>No assets loaded</h3>
+        <p>Enter your SIMple server URL and click Fetch to load your library.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insert Tab -->
+  <div class="content" id="tab-insert" style="display: none;">
+    <div style="margin-bottom: 12px;">
+      <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 6px;">Paste SVG Code</label>
+      <textarea id="svg-input" rows="8" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); font-family: monospace; font-size: 10px; resize: vertical; outline: none;" placeholder="<svg>...</svg>"></textarea>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <input type="text" id="asset-name" placeholder="Asset name" value="SIMple Asset" style="flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); font-size: 11px; outline: none;" />
+      <button class="btn btn-primary" onclick="insertFromInput()">Insert</button>
+    </div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div class="content" id="tab-settings" style="display: none;">
+    <div style="padding: 12px 0;">
+      <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 8px;">Server URL</label>
+      <div class="server-input">
+        <input type="text" id="settings-server-url" placeholder="http://localhost:3000" value="http://localhost:3000" />
+        <button class="btn btn-secondary" onclick="saveServerUrl()">Save</button>
+      </div>
+      <p style="font-size: 10px; color: var(--muted); margin-top: 4px;">
+        The URL of your running SIMple web app instance.
+      </p>
+    </div>
+    <div style="padding: 12px 0; border-top: 1px solid var(--border);">
+      <p style="font-size: 10px; color: var(--muted);">
+        SIMple Figma Plugin v0.1.0<br/>
+        Connects to your SIMple instance to browse and insert AI-generated graphics.
+      </p>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span>
+      <span class="status-dot disconnected" id="status-dot"></span>
+      <span id="status-text">Not connected</span>
+    </span>
+    <span id="asset-count"></span>
+  </div>
+
+  <script>
+    let assets = [];
+    let serverUrl = 'http://localhost:3000';
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.content').forEach(c => c.style.display = 'none');
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+      document.getElementById(`tab-${tab}`).style.display = 'block';
+    }
+
+    async function fetchAssets() {
+      const url = document.getElementById('server-url').value.trim();
+      if (!url) return;
+      serverUrl = url;
+
+      try {
+        const res = await fetch(`${url}/api/library`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        assets = data.assets || [];
+        renderAssets();
+        setStatus(true, `${assets.length} assets`);
+      } catch (err) {
+        setStatus(false, 'Connection failed');
+        // Try to show a message
+        document.getElementById('assets-container').innerHTML = `
+          <div class="empty-state">
+            <div class="icon" style="background: #fef2f2;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01" stroke-linecap="round"/></svg>
+            </div>
+            <h3>Connection failed</h3>
+            <p>Make sure your SIMple dev server is running at ${url}</p>
+          </div>`;
+      }
+    }
+
+    function renderAssets() {
+      if (assets.length === 0) {
+        document.getElementById('assets-container').innerHTML = `
+          <div class="empty-state">
+            <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>
+            <h3>Library is empty</h3>
+            <p>Generate some graphics in SIMple first, then save them to your library.</p>
+          </div>`;
+        return;
+      }
+
+      const html = '<div class="asset-grid">' + assets.map((asset, i) => `
+        <div class="asset-card" onclick="insertAsset(${i})" title="${asset.prompt}">
+          <div class="preview">${asset.svgCode || '<span style="color:var(--muted)">No preview</span>'}</div>
+          <div class="info">
+            <p>${asset.prompt}</p>
+            <span class="model">${asset.model}</span>
+          </div>
+        </div>
+      `).join('') + '</div>';
+
+      document.getElementById('assets-container').innerHTML = html;
+      document.getElementById('asset-count').textContent = `${assets.length} assets`;
+    }
+
+    function insertAsset(index) {
+      const asset = assets[index];
+      if (!asset) return;
+
+      if (asset.svgCode) {
+        parent.postMessage({
+          pluginMessage: {
+            type: 'insert-svg',
+            svgCode: asset.svgCode,
+            name: asset.prompt.slice(0, 50) || 'SIMple Asset',
+          }
+        }, '*');
+      }
+    }
+
+    function insertFromInput() {
+      const svgCode = document.getElementById('svg-input').value.trim();
+      const name = document.getElementById('asset-name').value.trim() || 'SIMple Asset';
+
+      if (!svgCode) return;
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'insert-svg',
+          svgCode: svgCode,
+          name: name,
+        }
+      }, '*');
+    }
+
+    function saveServerUrl() {
+      serverUrl = document.getElementById('settings-server-url').value.trim();
+      document.getElementById('server-url').value = serverUrl;
+      parent.postMessage({
+        pluginMessage: { type: 'notify', message: 'Server URL saved!' }
+      }, '*');
+    }
+
+    function setStatus(connected, text) {
+      document.getElementById('status-dot').className = `status-dot ${connected ? 'connected' : 'disconnected'}`;
+      document.getElementById('status-text').textContent = text;
+    }
+
+    // Listen for messages from plugin code
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'insert-success') {
+        // Could show a success indicator
+      }
+      if (msg.type === 'insert-error') {
+        console.error('Insert failed:', msg.error);
+      }
+    };
+  </script>
+</body>
+</html>

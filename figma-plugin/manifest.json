@@ -1,0 +1,32 @@
+{
+  "name": "SIMple - AI Graphic Creator",
+  "id": "simple-ai-graphic-creator",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["localhost", "*.vercel.app"],
+    "reasoning": "Connects to the SIMple web app to fetch generated assets."
+  },
+  "permissions": ["currentuser"],
+  "menu": [
+    {
+      "name": "Browse Assets",
+      "command": "browse"
+    },
+    {
+      "name": "Insert from Clipboard",
+      "command": "insert-clipboard"
+    },
+    {
+      "separator": true
+    },
+    {
+      "name": "Settings",
+      "command": "settings"
+    }
+  ]
+}

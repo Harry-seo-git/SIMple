@@ -1,0 +1,15 @@
+{
+  "name": "simple-figma-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Figma plugin for SIMple AI Graphic Creator",
+  "scripts": {
+    "build": "esbuild src/code.ts --bundle --outfile=dist/code.js --target=es6 && cp src/ui.html dist/ui.html",
+    "watch": "esbuild src/code.ts --bundle --outfile=dist/code.js --target=es6 --watch"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.98.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.0.0"
+  }
+}
