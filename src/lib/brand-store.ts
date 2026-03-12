@@ -64,18 +64,27 @@ const DEFAULT_PROFILE: BrandProfile = {
     {
       id: "g-color-1",
       category: "color",
-      title: "\ud504\ub77c\uc774\uba38\ub9ac \uceec\ub7ec",
+      title: "USIMSA \uceec\ub7ec \ud314\ub808\ud2b8",
       directive:
-        "Use indigo (#6366F1) as the primary brand color. Secondary colors are soft violet (#A78BFA) and warm gray (#78716C). Accent with electric blue (#3B82F6) sparingly.",
+        "Use USIMSA brand colors: Primary Blue #0066FF as the main accent. Secondary Blue #297EFF and light blue #EBF3FF for backgrounds and highlights. Gold/yellow #FFB800 for point icons and coins. Warm accents with soft sky blue gradients (#A8D4FF to #D6ECFF). Avoid using red except for warnings. Surface colors: white #FFFFFF and light gray #F9F9F9.",
       enabled: true,
       createdAt: new Date().toISOString(),
     },
     {
-      id: "g-shape-1",
+      id: "g-style-1",
       category: "shape",
-      title: "\ub77c\uc6b4\ub4dc \uc9c0\uc624\uba54\ud2b8\ub9ac",
+      title: "\uc18c\ud504\ud2b8 3D \uc77c\ub7ec\uc2a4\ud2b8",
       directive:
-        "Use rounded geometric shapes. Corner radius should be 12px or higher. Prefer circles, rounded rectangles, and soft polygons. No sharp or angular edges.",
+        "Create soft 3D illustrated objects with a glossy, toy-like quality. Objects should have gentle gradients, subtle highlights and soft shadows giving them volume and depth. Think clay render or Pixar-style 3D illustrations — rounded, friendly, tactile. Use smooth surfaces with specular highlights. Objects should feel like they exist in physical space with proper lighting from top-left.",
+      enabled: true,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "g-comp-1",
+      category: "composition",
+      title: "\ud22c\uba85 \ubc30\uacbd + \ub5a0 \uc788\ub294 \uad6c\ub3c4",
+      directive:
+        "ALWAYS use a fully transparent background (no solid backgrounds, no gradient backgrounds). The main object should be centered. Small secondary elements (coins, icons, sparkles, particles) should float around the main object at various angles and sizes to create dynamism and depth. Objects cast soft drop shadows downward. The composition should feel airy and spacious.",
       enabled: true,
       createdAt: new Date().toISOString(),
     },
@@ -84,25 +93,16 @@ const DEFAULT_PROFILE: BrandProfile = {
       category: "mood",
       title: "\ubaa8\ub358 \ud504\ub80c\ub4e4\ub9ac",
       directive:
-        "The overall mood should be modern, friendly, and approachable. Think clean tech aesthetic with warmth. Not cold or corporate.",
+        "The overall mood should be modern, friendly, and premium but approachable. Clean and bright, not dark or moody. The style evokes trust and reliability (fintech/telecom brand feel). Colors lean cool blue with warm gold accents. Objects should feel delightful and inviting.",
       enabled: true,
       createdAt: new Date().toISOString(),
     },
     {
-      id: "g-comp-1",
-      category: "composition",
-      title: "\uc900\uc559 \ubc38\ub7f0\uc2a4",
-      directive:
-        "Center-weighted composition with balanced whitespace. Objects should feel grounded, not floating randomly. Use subtle depth with soft shadows or layering.",
-      enabled: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "g-constraint-1",
+      id: "g-format-1",
       category: "constraint",
-      title: "\uae08\uc9c0 \uc694\uc18c",
+      title: "\ucd9c\ub825 \uc81c\uc57d",
       directive:
-        "Never use photorealistic renders. Avoid neon/fluorescent colors. No busy patterns or visual noise. No text overlapping graphics.",
+        "Output size must be 1024x1024 pixels. Background MUST be transparent (use alpha channel / no background fill). No text or typography in the graphic. No photorealistic renders — only stylized 3D illustration. No dark backgrounds. No neon or fluorescent colors. Avoid visual noise or overly complex compositions.",
       enabled: true,
       createdAt: new Date().toISOString(),
     },

@@ -79,7 +79,8 @@ async function generateWithClaude(
 
 Rules:
 - Output ONLY the raw SVG code, no markdown, no explanation
-- Use viewBox="0 0 400 400" with width="400" height="400"
+- Use viewBox="0 0 1024 1024" with width="1024" height="1024"
+- The background MUST be fully transparent — do NOT add any background rectangle or fill
 - Use modern design: gradients, rounded corners, clean shapes
 - Use the xmlns="http://www.w3.org/2000/svg" attribute
 - Do NOT include any JavaScript or external references
@@ -135,8 +136,8 @@ Rules:
     svgCode,
     createdAt: new Date().toISOString(),
     tags: style ? [style] : [],
-    width: 400,
-    height: 400,
+    width: 1024,
+    height: 1024,
   };
 }
 
@@ -157,10 +158,12 @@ async function generateWithOpenAI(
     },
     body: JSON.stringify({
       model: "gpt-image-1",
-      prompt: fullPrompt,
+      prompt: `${fullPrompt}. IMPORTANT: The background must be completely transparent (no background fill).`,
       n: 1,
       size: "1024x1024",
       quality: "medium",
+      background: "transparent",
+      output_format: "png",
     }),
   });
 
@@ -215,7 +218,7 @@ async function generateWithDallE3(
     },
     body: JSON.stringify({
       model: "dall-e-3",
-      prompt: fullPrompt,
+      prompt: `${fullPrompt}. IMPORTANT: The background must be completely transparent (no background fill).`,
       n: 1,
       size: "1024x1024",
       quality: "standard",
@@ -271,7 +274,7 @@ async function generateWithGemini(
           {
             parts: [
               {
-                text: `Generate a high-quality graphic image based on this description: ${fullPrompt}. Make it visually stunning and professional.`,
+                text: `Generate a high-quality graphic image based on this description: ${fullPrompt}. Make it visually stunning and professional. IMPORTANT: The background must be completely transparent (no background fill). Output size should be 1024x1024 pixels.`,
               },
             ],
           },
@@ -331,8 +334,8 @@ async function generateWithGemini(
         svgCode,
         createdAt: new Date().toISOString(),
         tags: style ? [style] : [],
-        width: 400,
-        height: 400,
+        width: 1024,
+        height: 1024,
       };
     }
   }
@@ -355,19 +358,19 @@ function generateDemo(fullPrompt: string, model: string, style?: string, outputF
   };
   const colors = modelColors[model] || modelColors.claude;
 
-  const svgCode = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  const svgCode = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="${colors.primary}" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="${colors.secondary}" stop-opacity="0.12"/>
     </linearGradient>
   </defs>
-  <rect width="400" height="400" rx="24" fill="url(#bg)"/>
-  <circle cx="200" cy="170" r="60" fill="${colors.primary}" opacity="0.3"/>
-  <circle cx="200" cy="170" r="30" fill="${colors.secondary}" opacity="0.6"/>
-  <text x="200" y="270" text-anchor="middle" fill="${colors.primary}" font-family="system-ui" font-size="14" font-weight="bold" opacity="0.7">DEMO MODE</text>
-  <text x="200" y="295" text-anchor="middle" fill="${colors.primary}" font-family="system-ui" font-size="10" opacity="0.4">Connect API key in Settings to generate real graphics</text>
-  <text x="200" y="380" text-anchor="middle" fill="${colors.primary}" font-family="system-ui" font-size="10" opacity="0.3">SIMple \u00b7 ${model}</text>
+  <rect width="1024" height="1024" rx="48" fill="url(#bg)"/>
+  <circle cx="512" cy="420" r="150" fill="${colors.primary}" opacity="0.3"/>
+  <circle cx="512" cy="420" r="75" fill="${colors.secondary}" opacity="0.6"/>
+  <text x="512" y="680" text-anchor="middle" fill="${colors.primary}" font-family="system-ui" font-size="36" font-weight="bold" opacity="0.7">DEMO MODE</text>
+  <text x="512" y="740" text-anchor="middle" fill="${colors.primary}" font-family="system-ui" font-size="24" opacity="0.4">Connect API key in Settings to generate real graphics</text>
+  <text x="512" y="960" text-anchor="middle" fill="${colors.primary}" font-family="system-ui" font-size="24" opacity="0.3">SIMple \u00b7 ${model}</text>
 </svg>`;
 
   const asset: GeneratedAsset = {
@@ -379,8 +382,8 @@ function generateDemo(fullPrompt: string, model: string, style?: string, outputF
     svgCode,
     createdAt: new Date().toISOString(),
     tags: style ? [style] : [],
-    width: 400,
-    height: 400,
+    width: 1024,
+    height: 1024,
   };
 
   return NextResponse.json({ asset, demo: true });
